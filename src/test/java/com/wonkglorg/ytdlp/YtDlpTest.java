@@ -49,7 +49,7 @@ public class YtDlpTest {
 
         YtDlpResponse response = YtDlp.execute(request);
 
-        Assert.assertEquals("yt-dlp \"" + VIDEO_URL + "\" --simulate", response.getCommand());
+        Assert.assertEquals("yt-dlp " + VIDEO_URL + " --simulate", response.getCommand());
     }
 
     @Test

@@ -9,7 +9,7 @@ public class YtDlpRequestTest {
     public void testBuildOptionStandalone() {
 
         YtDlpRequest request = new YtDlpRequest();
-        request.setOption("help");
+        request.setOption("--help");
 
         Assert.assertEquals("--help", request.buildOptions());
     }
@@ -18,7 +18,7 @@ public class YtDlpRequestTest {
     public void testBuildOptionWithValue() {
 
         YtDlpRequest request = new YtDlpRequest();
-        request.setOption("password", "1234");
+        request.setOption("--password", "1234");
 
         Assert.assertEquals("--password 1234", request.buildOptions());
     }
@@ -27,8 +27,8 @@ public class YtDlpRequestTest {
     public void testBuildChainOptionWithValue() {
 
         YtDlpRequest request = new YtDlpRequest();
-        request.setOption("password", "1234");
-        request.setOption("username", "1234");
+        request.setOption("--password", "1234");
+        request.setOption("--username", "1234");
 
         Assert.assertEquals("--password 1234 --username 1234", request.buildOptions());
     }

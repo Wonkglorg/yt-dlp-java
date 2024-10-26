@@ -23,7 +23,7 @@ public class YtDlpRequest {
     /**
      * List of executable options
      */
-    private Map<String, String> options = new HashMap<>();
+    private final Map<String, String> options = new HashMap<>();
 
     public String getDirectory() {
         return directory;
@@ -103,7 +103,7 @@ public class YtDlpRequest {
         StringBuilder builder = new StringBuilder();
 
         // Set Url
-        if (url != null) builder.append("\"" + url + "\"" + " ");
+        if (url != null) builder.append(url).append(" ");
 
         // Build options strings
         Iterator<Entry<String, String>> it = options.entrySet().iterator();
@@ -120,7 +120,7 @@ public class YtDlpRequest {
                 continue;
             }
 
-            String optionFormatted = String.format("%s \"%s\"", name, value).trim();
+            String optionFormatted = String.format("%s %s", name, value).trim();
             builder.append(optionFormatted).append(" ");
 
             it.remove();
