@@ -3,7 +3,7 @@ package com.wonkglorg.ytdlp.exception;
 /**
  * YtDlp Exception
  */
-public class YtDlpException extends Exception {
+public class YtDlpException extends RuntimeException {
 
     /**
      * Exception message
