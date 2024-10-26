@@ -69,13 +69,11 @@ public class StreamProcessExtractor extends Thread {
             callback.onProgressUpdate(constructCallBackData(downloadMatcher));
             return;
         }
-
+        //reads header data (its sent as 1 line with \n separated lines)
         if (!hasReadHeader) {
             extractHeaderData(line);
             hasReadHeader = true;
         }
-
-
     }
 
     private void extractHeaderData(String line) {

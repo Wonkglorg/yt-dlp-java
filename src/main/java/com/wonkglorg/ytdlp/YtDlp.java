@@ -31,6 +31,7 @@ import java.util.logging.Logger;
  */
 public class YtDlp {
     private static final Logger log = Logger.getLogger(YtDlp.class.getName());
+    private static DownloadProgressCallback globalCallBack = defaultCallBack();
 
     private YtDlp() {
         // Private constructor is here to encourage static usage of this class
@@ -604,8 +605,17 @@ public class YtDlp {
         VideoInfo videoInfo = videoInfoOptional.get();
         String filePath = fileName == null ? videoInfo.getFileName() : fileName + "." + format;
 
-        YtDlp.execute(request);
+        YtDlp.execute(request, globalCallBack);
         return Map.of(filePath, videoInfo);
+    }
+
+    /**
+     * Sets the global callback function for all predefined download methods
+     *
+     * @param callback
+     */
+    public void setGlobalCallBack(DownloadProgressCallback callback) {
+        globalCallBack = callback;
     }
 
 }
