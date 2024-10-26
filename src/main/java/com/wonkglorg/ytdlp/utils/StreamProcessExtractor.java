@@ -1,6 +1,7 @@
 package com.wonkglorg.ytdlp.utils;
 
-import com.wonkglorg.ytdlp.DownloadProgressCallback;
+import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
+import com.wonkglorg.ytdlp.callback.ProgressCallBackData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,16 +9,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StreamProcessExtractor extends Thread {
+    private static final String GROUP_SIZE = "size";
+    private static final String GROUP_SPEED = "speed";
+    private static final String GROUP_FRAG_CURRENT = "fragCurrent";
+    private static final String GROUP_FRAG_MAX = "fragMax";
     private static final String GROUP_PERCENT = "percent";
     private static final String GROUP_MINUTES = "minutes";
     private static final String GROUP_SECONDS = "seconds";
-    private InputStream stream;
-    private StringBuilder buffer;
+    private final InputStream stream;
+    private final StringBuilder buffer;
     private final DownloadProgressCallback callback;
 
-    private Pattern p =
+    private Pattern pattern =
             Pattern.compile(
-                    "\\[download\\]\\s+(?<percent>\\d+\\.\\d)% .* ETA (?<minutes>\\d+):(?<seconds>\\d+)");
+                    "\\[download]\\s+(?<percent>\\d+\\.\\d+)%\\s+of\\s+~?\\s+(?<size>\\d+\\.\\d+\\w+)\\s+at\\s+(?<speed>\\d+\\.\\d+\\w+/s)\\s+ETA\\s+(?<minutes>\\d+):(?<seconds>\\d+)\\s+\\(frag\\s+(?<fragCurrent>\\d+)/(?<fragMax>\\d+)\\)");
 
     public StreamProcessExtractor(
             StringBuilder buffer, InputStream stream, DownloadProgressCallback callback) {
@@ -47,12 +52,20 @@ public class StreamProcessExtractor extends Thread {
     }
 
     private void processOutputLine(String line) {
-        Matcher m = p.matcher(line);
-        if (m.matches()) {
-            float progress = Float.parseFloat(m.group(GROUP_PERCENT));
-            long eta = convertToSeconds(m.group(GROUP_MINUTES), m.group(GROUP_SECONDS));
-            callback.onProgressUpdate(progress, eta);
+        Matcher matcher = pattern.matcher(line);
+        if (matcher.matches()) {
+            callback.onProgressUpdate(constructCallBackData(matcher));
         }
+    }
+
+    private ProgressCallBackData constructCallBackData(Matcher matcher) {
+        float progress = Float.parseFloat(matcher.group(GROUP_PERCENT));
+        long eta = convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
+        String speed = matcher.group(GROUP_SPEED);
+        String totalFileSize = matcher.group(GROUP_SIZE);
+        int currFragment = Integer.parseInt(matcher.group(GROUP_FRAG_CURRENT));
+        int totalFragments = Integer.parseInt(matcher.group(GROUP_FRAG_MAX));
+        return new ProgressCallBackData(progress, totalFileSize, speed, eta, currFragment, totalFragments);
     }
 
     private int convertToSeconds(String minutes, String seconds) {

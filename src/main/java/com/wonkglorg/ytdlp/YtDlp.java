@@ -2,6 +2,7 @@ package com.wonkglorg.ytdlp;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
 import com.wonkglorg.ytdlp.exception.YtDlpException;
 import com.wonkglorg.ytdlp.functional.TriFunction;
 import com.wonkglorg.ytdlp.mapper.Format;
@@ -182,7 +183,7 @@ public class YtDlp {
     }
 
     /**
-     * Downloads audio from a URL with full metadata user
+     * Downloads audio from a URL with full metadata
      *
      * @param videoUrl The video url
      * @param path     The path to save the video
@@ -194,7 +195,7 @@ public class YtDlp {
     }
 
     /**
-     * Downloads audio from a URL with full metadata user
+     * Downloads audio from a URL with full metadata
      *
      * @param videoUrl The video url
      * @param path     The path to save the video
@@ -582,6 +583,12 @@ public class YtDlp {
         }
 
         return results;
+    }
+
+    public static DownloadProgressCallback defaultCallBack() {
+        return (progress) -> {
+            System.out.print("\r" + String.format("[download] %s of ~  %s at    %s ETA %ss (frag %s/%s)", progress.progressPercent(), progress.totalFileSize(), progress.downloadSpeed(), progress.etaSeconds(), progress.currFragment(), progress.totalFragments()));
+        };
     }
 
 }
