@@ -61,9 +61,9 @@ String directory = System.getProperty("user.home");
 
 // Build request
 YtDlpRequest request = new YtDlpRequest(videoUrl, directory);
-request.setOption("ignore-errors");		// --ignore-errors
-request.setOption("output", "%(id)s");	// --output "%(id)s"
-request.setOption("retries", 10);		// --retries 10
+request.setOption("--ignore-errors");		// --ignore-errors
+request.setOption("--output", "%(id)s");	// --output "%(id)s"
+request.setOption("--retries", 10);		// --retries 10
 
 // Make request and return response
 YtDlpResponse response = YtDlp.execute(request);
