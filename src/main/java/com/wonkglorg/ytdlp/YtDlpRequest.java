@@ -25,47 +25,6 @@ public class YtDlpRequest {
      */
     private final Map<String, String> options = new HashMap<>();
 
-    public String getDirectory() {
-        return directory;
-    }
-
-    public YtDlpRequest setDirectory(String directory) {
-        this.directory = directory;
-        return this;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public YtDlpRequest setUrl(String url) {
-        this.url = url;
-        return this;
-    }
-
-    public Map<String, String> getOption() {
-        return options;
-    }
-
-    public YtDlpRequest setOption(String key) {
-        options.put(key, null);
-        return this;
-    }
-
-    public YtDlpRequest setOption(String key, String value) {
-        options.put(key, value);
-        return this;
-    }
-
-    public YtDlpRequest setOption(String key, int value) {
-        options.put(key, String.valueOf(value));
-        return this;
-    }
-
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
     /**
      * Constructor
      */
@@ -91,6 +50,59 @@ public class YtDlpRequest {
     public YtDlpRequest(String url, String directory) {
         this.url = url;
         this.directory = directory;
+    }
+
+    /**
+     * Get the working directory in which the executable will be run
+     *
+     * @return Working directory
+     */
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    /**
+     * Sets the working directory in which the executable will be run
+     *
+     * @param directory Working directory
+     * @return YtDlpRequest
+     */
+    public YtDlpRequest setDirectory(String directory) {
+        this.directory = directory;
+        return this;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public YtDlpRequest setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
+    public Map<String, String> getOption() {
+        return options;
+    }
+
+    public YtDlpRequest addOption(String key) {
+        options.put(key, null);
+        return this;
+    }
+
+    public YtDlpRequest addOption(String key, String value) {
+        options.put(key, value);
+        return this;
+    }
+
+    public YtDlpRequest addOption(String key, int value) {
+        options.put(key, String.valueOf(value));
+        return this;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
     }
 
     /**

@@ -32,7 +32,7 @@ public class YtDlpTest {
         long startTime = System.nanoTime();
 
         YtDlpRequest request = new YtDlpRequest();
-        request.setOption("--version");
+        request.addOption("--version");
         YtDlpResponse response = YtDlp.execute(request);
 
         int elapsedTime = (int) (System.nanoTime() - startTime);
@@ -45,7 +45,7 @@ public class YtDlpTest {
 
         YtDlpRequest request = new YtDlpRequest();
         request.setUrl(VIDEO_URL);
-        request.setOption("--simulate");
+        request.addOption("--simulate");
 
         YtDlpResponse response = YtDlp.execute(request);
 
@@ -56,7 +56,7 @@ public class YtDlpTest {
     public void testDirectory() throws YtDlpException {
 
         YtDlpRequest request = new YtDlpRequest(VIDEO_URL, DIRECTORY);
-        request.setOption("--simulate");
+        request.addOption("--simulate");
 
         YtDlpResponse response = YtDlp.execute(request);
 

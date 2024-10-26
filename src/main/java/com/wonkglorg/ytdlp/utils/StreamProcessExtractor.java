@@ -5,10 +5,13 @@ import com.wonkglorg.ytdlp.callback.ProgressCallBackData;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StreamProcessExtractor extends Thread {
+    private static final Logger log = Logger.getLogger(StreamProcessExtractor.class.getName());
     private static final String GROUP_SIZE = "size";
     private static final String GROUP_SPEED = "speed";
     private static final String GROUP_FRAG_CURRENT = "fragCurrent";
@@ -16,13 +19,22 @@ public class StreamProcessExtractor extends Thread {
     private static final String GROUP_PERCENT = "percent";
     private static final String GROUP_MINUTES = "minutes";
     private static final String GROUP_SECONDS = "seconds";
+    private static final String GROUP_URL = "url";
+    private static final String GROUP_FILENAME = "filename";
     private final InputStream stream;
     private final StringBuilder buffer;
     private final DownloadProgressCallback callback;
+    private String destinationFile = null;
+    private String url = null;
+    private boolean hasReadHeader = false;
 
-    private Pattern pattern =
+    private final Pattern downloadProgressPattern =
             Pattern.compile(
                     "\\[download]\\s+(?<percent>\\d+\\.\\d+)%\\s+of\\s+~?\\s+(?<size>\\d+\\.\\d+\\w+)\\s+at\\s+(?<speed>\\d+\\.\\d+\\w+/s)\\s+ETA\\s+(?<minutes>\\d+):(?<seconds>\\d+)\\s+\\(frag\\s+(?<fragCurrent>\\d+)/(?<fragMax>\\d+)\\)");
+
+    private final Pattern urlPattern = Pattern.compile("\\[youtube] Extracting URL: (?<url>https?://\\S+)");
+
+    private final Pattern destinationPattern = Pattern.compile("\\[download] Destination: (?<filename>.+)");
 
     public StreamProcessExtractor(
             StringBuilder buffer, InputStream stream, DownloadProgressCallback callback) {
@@ -46,15 +58,45 @@ public class StreamProcessExtractor extends Thread {
                 }
                 currentLine.append((char) nextChar);
             }
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
+        } catch (IOException e) {
+            log.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
     private void processOutputLine(String line) {
-        Matcher matcher = pattern.matcher(line);
-        if (matcher.matches()) {
-            callback.onProgressUpdate(constructCallBackData(matcher));
+        Matcher downloadMatcher = downloadProgressPattern.matcher(line);
+        if (downloadMatcher.matches()) {
+            callback.onProgressUpdate(constructCallBackData(downloadMatcher));
+            return;
+        }
+
+        if (!hasReadHeader) {
+            extractHeaderData(line);
+            hasReadHeader = true;
+        }
+
+
+    }
+
+    private void extractHeaderData(String line) {
+        String[] headers = line.split("\n");
+        for (String header : headers) {
+            Matcher urlMatcher = urlPattern.matcher(header);
+            if (urlMatcher.matches()) {
+                url = urlMatcher.group(GROUP_URL);
+                continue;
+            }
+
+            Matcher destinationMatcher = destinationPattern.matcher(header);
+            if (destinationMatcher.matches()) {
+                String file = destinationMatcher.group(GROUP_FILENAME);
+
+                if (url != null && url.split("=").length > 1) {
+                    file = file.replace("[" + url.split("=")[1] + "]", "");
+                }
+                file = file.replace(" .f616", "");
+                destinationFile = file;
+            }
         }
     }
 
@@ -65,7 +107,7 @@ public class StreamProcessExtractor extends Thread {
         String totalFileSize = matcher.group(GROUP_SIZE);
         int currFragment = Integer.parseInt(matcher.group(GROUP_FRAG_CURRENT));
         int totalFragments = Integer.parseInt(matcher.group(GROUP_FRAG_MAX));
-        return new ProgressCallBackData(progress, totalFileSize, speed, eta, currFragment, totalFragments);
+        return new ProgressCallBackData(url, destinationFile, progress, totalFileSize, speed, eta, currFragment, totalFragments);
     }
 
     private int convertToSeconds(String minutes, String seconds) {
