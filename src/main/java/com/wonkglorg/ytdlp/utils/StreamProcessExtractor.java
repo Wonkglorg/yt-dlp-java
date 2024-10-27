@@ -1,6 +1,9 @@
 package com.wonkglorg.ytdlp.utils;
 
+import com.wonkglorg.ytdlp.YtDlpRequest;
+import com.wonkglorg.ytdlp.callback.DownloadEndCallback;
 import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
+import com.wonkglorg.ytdlp.callback.DownloadStartCallback;
 import com.wonkglorg.ytdlp.callback.ProgressCallBackData;
 
 import java.io.IOException;
@@ -23,40 +26,48 @@ public class StreamProcessExtractor extends Thread {
     private static final String GROUP_FILENAME = "filename";
     private final InputStream stream;
     private final StringBuilder buffer;
-    private final DownloadProgressCallback callback;
+    private final DownloadProgressCallback progressCallback;
+    private final DownloadStartCallback startCallback;
+    private final DownloadEndCallback endCallback;
     private String destinationFile = null;
     private String url = null;
     private boolean hasReadHeader = false;
 
     private final Pattern downloadProgressPattern =
             Pattern.compile(
-                    "\\[download]\\s+(?<percent>\\d+\\.\\d+)%\\s+of\\s+~?\\s+(?<size>\\d+\\.\\d+\\w+)\\s+at\\s+(?<speed>\\d+\\.\\d+\\w+/s)\\s+ETA\\s+(?<minutes>\\d+):(?<seconds>\\d+)\\s+\\(frag\\s+(?<fragCurrent>\\d+)/(?<fragMax>\\d+)\\)");
+                    "\\[download]\\s+(?<percent>\\d+\\.\\d+)%\\s+of\\s+~?\\s+(?<size>\\d+\\.\\d+\\w+)\\s+at\\s+(?<speed>\\d+\\.\\d+\\w+/s)\\s+ETA\\s+(?<minutes>\\d+):(?<seconds>\\d+)(?:\\s+\\(frag\\s+(?<fragCurrent>\\d+)/(?<fragMax>\\d+)\\))?");
 
     private final Pattern urlPattern = Pattern.compile("\\[youtube] Extracting URL: (?<url>https?://\\S+)");
 
     private final Pattern destinationPattern = Pattern.compile("\\[download] Destination: (?<filename>.+)");
 
     public StreamProcessExtractor(
-            StringBuilder buffer, InputStream stream, DownloadProgressCallback callback) {
+            StringBuilder buffer, InputStream stream, YtDlpRequest request) {
         this.stream = stream;
         this.buffer = buffer;
-        this.callback = callback;
+        this.progressCallback = request.getDownloadProgressCallback();
+        this.startCallback = request.getDownloadStartCallback();
+        this.endCallback = request.getDownloadEndCallback();
         this.start();
     }
 
     @Override
     public void run() {
+        long startTime = System.currentTimeMillis();
         try {
             StringBuilder currentLine = new StringBuilder();
             int nextChar;
             while ((nextChar = stream.read()) != -1) {
                 buffer.append((char) nextChar);
-                if (nextChar == '\r' && callback != null) {
+                if (nextChar == '\r' && progressCallback != null) {
                     processOutputLine(currentLine.toString());
                     currentLine.setLength(0);
                     continue;
                 }
                 currentLine.append((char) nextChar);
+            }
+            if (endCallback != null) {
+                endCallback.onDownloadEnd(destinationFile, url, System.currentTimeMillis() - startTime);
             }
         } catch (IOException e) {
             log.log(Level.WARNING, e.getMessage(), e);
@@ -66,12 +77,15 @@ public class StreamProcessExtractor extends Thread {
     private void processOutputLine(String line) {
         Matcher downloadMatcher = downloadProgressPattern.matcher(line);
         if (downloadMatcher.matches()) {
-            callback.onProgressUpdate(constructCallBackData(downloadMatcher));
+            progressCallback.onProgressUpdate(constructCallBackData(downloadMatcher));
             return;
         }
         //reads header data (its sent as 1 line with \n separated lines)
         if (!hasReadHeader) {
             extractHeaderData(line);
+            if (startCallback != null) {
+                startCallback.onDownloadStart(destinationFile, url);
+            }
             hasReadHeader = true;
         }
     }
@@ -103,9 +117,17 @@ public class StreamProcessExtractor extends Thread {
         long eta = convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
         String speed = matcher.group(GROUP_SPEED);
         String totalFileSize = matcher.group(GROUP_SIZE);
-        int currFragment = Integer.parseInt(matcher.group(GROUP_FRAG_CURRENT));
-        int totalFragments = Integer.parseInt(matcher.group(GROUP_FRAG_MAX));
+        int currFragment = parseIntOrDefault(matcher.group(GROUP_FRAG_CURRENT), 0);
+        int totalFragments = parseIntOrDefault(matcher.group(GROUP_FRAG_MAX), 0);
         return new ProgressCallBackData(url, destinationFile, progress, totalFileSize, speed, eta, currFragment, totalFragments);
+    }
+
+    private Integer parseIntOrDefault(String value, int defaultValue) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     private int convertToSeconds(String minutes, String seconds) {
