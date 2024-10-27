@@ -8,23 +8,18 @@ import com.wonkglorg.ytdlp.mapper.Format;
 import com.wonkglorg.ytdlp.mapper.json.PlaylistInfo;
 import com.wonkglorg.ytdlp.mapper.json.PlaylistPreviewInfo;
 import com.wonkglorg.ytdlp.mapper.json.VideoInfo;
-import com.wonkglorg.ytdlp.utils.AudioOption;
+import com.wonkglorg.ytdlp.utils.ConsoleColor;
 import com.wonkglorg.ytdlp.utils.StreamGobbler;
 import com.wonkglorg.ytdlp.utils.StreamProcessExtractor;
-import com.wonkglorg.ytdlp.utils.VideoOption;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BiFunction;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-//todo preview downloads not correctly working
+
+import static com.wonkglorg.ytdlp.utils.ConsoleColor.*;
 
 /**
  * Provide an interface for yt-dlp executable
@@ -35,8 +30,6 @@ import java.util.regex.Pattern;
 public class YtDlp {
     private static final Logger log = Logger.getLogger(YtDlp.class.getName());
     private static DownloadProgressCallback globalCallBack = defaultCallBack();
-    private static final Pattern outputFileNamePattern = Pattern.compile("\\[Merger] Merging formats into \"(?<filename>.+)\"");
-    private static final Pattern hasBeenDownloadedPattern = Pattern.compile("\\[download] (?<filename>.+) has already been downloaded");
 
 
     private YtDlp() {
@@ -66,17 +59,6 @@ public class YtDlp {
      * @return response object
      */
     public static YtDlpResponse execute(YtDlpRequest request) throws YtDlpException {
-        return execute(request, null);
-    }
-
-    /**
-     * Execute yt-dlp request
-     *
-     * @param request  request object
-     * @param callback callback to monitor download progress
-     * @return response object
-     */
-    public static YtDlpResponse execute(YtDlpRequest request, DownloadProgressCallback callback) throws YtDlpException {
 
         String command = buildCommand(request.buildOptions());
         String directory = request.getDirectory();
@@ -88,13 +70,15 @@ public class YtDlp {
         StringBuilder errBuffer = new StringBuilder(); // stderr
         long startTime = System.nanoTime();
 
-        String[] split = command.split(" ");
+        //if multiple empty lines happen correctly split em up
+        String[] split = Arrays.stream(command.split(" "))
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
 
         ProcessBuilder processBuilder = new ProcessBuilder(split);
 
         // Define directory if one is passed
         if (directory != null) processBuilder.directory(new File(directory));
-
         try {
             process = processBuilder.start();
         } catch (IOException e) {
@@ -104,7 +88,7 @@ public class YtDlp {
         InputStream outStream = process.getInputStream();
         InputStream errStream = process.getErrorStream();
 
-        StreamProcessExtractor stdOutProcessor = new StreamProcessExtractor(outBuffer, outStream, callback);
+        StreamProcessExtractor stdOutProcessor = new StreamProcessExtractor(outBuffer, outStream, request);
         StreamGobbler stdErrProcessor = new StreamGobbler(errBuffer, errStream);
 
         try {
@@ -137,134 +121,6 @@ public class YtDlp {
     public static String getVersion() throws YtDlpException {
         YtDlpRequest request = new YtDlpRequest().addOption("--version");
         return YtDlp.execute(request).getOut();
-    }
-
-
-    /**
-     * Download a video from a URL with full metadata
-     *
-     * @param videoUrl    The video url
-     * @param path        The path to save the video
-     * @param fileName    The name of the file
-     * @param videoOption The Video Format to download the url in
-     * @return A Map of the saved file and the video info related to it
-     */
-    public static Map<String, VideoInfo> downloadVideo(String videoUrl, String path, String fileName, VideoOption videoOption) throws YtDlpException {
-        return download(videoUrl, fileName, videoOption.getExtension(), new YtDlpRequest(videoUrl)//
-                .setDirectory(path)//
-                .addOption("--output", fileName + "." + videoOption.getExtension()));
-    }
-
-    /**
-     * Download a video from a URL with full metadata user
-     *
-     * @param videoUrl    The video url
-     * @param path        The path to save the video
-     * @param videoOption The Video Format to download the url in
-     * @return A Map of the saved file and the video info related to it
-     * @throws YtDlpException If the video cannot be downloaded
-     */
-    public static Map<String, VideoInfo> downloadVideo(String videoUrl, String path, VideoOption videoOption) throws YtDlpException {
-        return downloadVideo(videoUrl, path, "%(title)s", videoOption);
-    }
-
-    /**
-     * Download a video in mp4 from a URL with full metadata user
-     *
-     * @param videoUrl The video url
-     * @param path     The path to save the video
-     * @return A Map of the saved file and the video info related to it
-     * @throws YtDlpException If the video cannot be downloaded
-     */
-    public static Map<String, VideoInfo> downloadVideo(String videoUrl, String path) throws YtDlpException {
-        return downloadVideo(videoUrl, path, "%(title)s", VideoOption.MP4);
-    }
-
-    /**
-     * Downloads the mp3 audio from a URL with full metadata
-     *
-     * @param videoUrl    The video url
-     * @param path        The path to save the video
-     * @param audioOption The Audio Format to download the url in
-     * @return A Map of the saved file and the video info related to it
-     * @throws YtDlpException If the audio cannot be downloaded
-     */
-    public static Map<String, VideoInfo> downloadAudio(String videoUrl, String path, String fileName, AudioOption audioOption) throws YtDlpException {
-        return download(videoUrl, fileName, audioOption.getExtension(), new YtDlpRequest(videoUrl)//
-                .setDirectory(path)//
-                .addOption("--extract-audio")//
-                .addOption(audioOption.getParams())//
-                .addOption("--output", fileName + "+" + audioOption.getExtension()));
-    }
-
-    /**
-     * Downloads audio from a URL with full metadata
-     *
-     * @param videoUrl    The video url
-     * @param path        The path to save the video
-     * @param audioOption The Audio Format to download the url in
-     * @return A Map of the saved file and the video info related to it
-     * @throws YtDlpException If the audio cannot be downloaded
-     */
-    public static Map<String, VideoInfo> downloadAudio(String videoUrl, String path, AudioOption audioOption) throws YtDlpException {
-        return downloadAudio(videoUrl, path, "%(title)s", audioOption);
-    }
-
-    /**
-     * Downloads mp3 audio from a URL with full metadata
-     *
-     * @param videoUrl The video url
-     * @param path     The path to save the video
-     * @return A Map of the saved file and the video info related to it
-     * @throws YtDlpException If the audio cannot be downloaded
-     */
-    public static Map<String, VideoInfo> downloadAudio(String videoUrl, String path) throws YtDlpException {
-        return downloadAudio(videoUrl, path, "%(title)s", AudioOption.MP3);
-    }
-
-    /**
-     * Helper method to download playlists with full metadata information
-     *
-     * @param playlistUrl          The playlist url
-     * @param path                 The path to save the videos
-     * @param subDirectoryPlaylist If true each playlist gets its own subdirectory with the name of the playlist as its name
-     * @return A Map of the saved files and the video info related to it
-     * @throws YtDlpException
-     */
-    private static Map<String, VideoInfo> downloadPlaylist(String playlistUrl, String path, boolean subDirectoryPlaylist, BiFunction<String, String, Map<String, VideoInfo>> downloader) throws YtDlpException {
-        Optional<PlaylistInfo> playlistInfoOptional = getPlaylistInfo(playlistUrl);
-        if (playlistInfoOptional.isEmpty()) {
-            throw new YtDlpException("Playlist not found");
-        }
-
-        PlaylistInfo playlistInfo = playlistInfoOptional.get();
-        List<VideoInfo> videoInfos = playlistInfo.getEntries();
-
-        if (subDirectoryPlaylist) path = path + "/" + playlistInfo.getTitle();
-
-        Path.of(path).toFile().mkdirs();
-
-        List<Callable<Map<String, VideoInfo>>> tasks = new ArrayList<>();
-        System.out.println("Downloading " + videoInfos.size() + " videos");
-        for (VideoInfo videoInfo : videoInfos) {
-            String finalPath = path;
-            tasks.add(() -> downloader.apply(videoInfo.getOriginalUrl(), finalPath));
-        }
-
-        return executeTasks(tasks);
-    }
-
-    public static Map<String, VideoInfo> downloadPlaylistVideo(String playlistUrl, String path, boolean subDirectoryPlaylist) {
-        try {
-            return downloadPlaylist(playlistUrl, path, subDirectoryPlaylist, YtDlp::downloadVideo);
-        } catch (YtDlpException e) {
-            log.log(Level.WARNING, e.getMessage(), e);
-        }
-        return null;
-    }
-
-    public static Map<String, VideoInfo> downloadPlaylistAudio(String playlistUrl, String path, boolean subDirectoryPlaylist) throws YtDlpException {
-        return downloadPlaylist(playlistUrl, path, subDirectoryPlaylist, YtDlp::downloadAudio);
     }
 
     /**
@@ -364,7 +220,6 @@ public class YtDlp {
      *
      * @param url The Playlist url
      * @return {@link PlaylistPreviewInfo}
-     * @throws YtDlpException If the
      */
     public static Optional<PlaylistPreviewInfo> getPlaylistPreviewInfo(String url) throws YtDlpException {
         YtDlpRequest request = new YtDlpRequest(url);
@@ -516,69 +371,30 @@ public class YtDlp {
         return results;
     }
 
+    /**
+     * Default callback function for download progress
+     *
+     * @return Default callback function
+     */
     public static DownloadProgressCallback defaultCallBack() {
-        return (progress) -> {
-            System.out.print("\r" + String.format("[download] %s | %s of ~  %s at    %s ETA %ss (frag %s/%s)", progress.fileName().split("\\.")[0], progress.progressPercent(), progress.totalFileSize(), progress.downloadSpeed(), progress.etaSeconds(), progress.currFragment(), progress.totalFragments()));
+        return (progress) ->//
+        {
+
+            String text = String.format("[download] %s | %s of ~  %s at    %s ETA %ss", //
+                    progress.fileName().split("\\.")[0], //
+                    BRIGHT_BLUE + "" + progress.progressPercent() + RESET, //
+                    GREEN + progress.totalFileSize() + RESET,//
+                    BLUE + progress.downloadSpeed() + RESET, //
+                    CYAN + "" + progress.etaSeconds() + RESET);
+
+            if (progress.totalFragments() > 0) {
+                text += String.format(" | %s of %s fragments", //
+                        BRIGHT_RED + "" + progress.currFragment() + RESET, //
+                        RED + "" + progress.totalFragments() + RESET);
+            }
+
+            System.out.print("\r" + text);
         };
-    }
-
-
-    /**
-     * Helper method to download media
-     */
-    private static Map<String, VideoInfo> download(String videoUrl, String fileName, String format, YtDlpRequest request) throws YtDlpException {
-        Optional<VideoInfo> videoInfoOptional = getVideoInfo(videoUrl);
-
-        if (videoInfoOptional.isEmpty()) throw new YtDlpException("Video not found");
-
-        VideoInfo videoInfo = videoInfoOptional.get();
-
-        var response = YtDlp.execute(request, globalCallBack);
-
-        String outputFileName = hasFileBeenDownloaded(response.getOut());
-        if (outputFileName != null) {
-            log.warning("File has already been downloaded");
-        } else {
-            outputFileName = extractFileName(response.getOut());
-            if (outputFileName == null) {
-                outputFileName = fileName;
-                log.warning("Could not extract filename from output, using default filename");
-            }
-        }
-        return Map.of(outputFileName, videoInfo);
-    }
-
-    /**
-     * Checks if the file has already been downloaded
-     *
-     * @param output The output of the yt-dlp command
-     * @return True if the file has already been downloaded
-     */
-    private static String hasFileBeenDownloaded(String output) {
-
-        for (String line : output.split("\n")) {
-            Matcher matcher = hasBeenDownloadedPattern.matcher(line);
-            if (matcher.matches()) {
-                return matcher.group("filename");
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds the filename from the output of the yt-dlp command
-     *
-     * @param output The output of the yt-dlp command
-     * @return The filename
-     */
-    private static String extractFileName(String output) {
-        for (String line : output.split("\n")) {
-            Matcher matcher = outputFileNamePattern.matcher(line);
-            if (matcher.matches()) {
-                return matcher.group("filename");
-            }
-        }
-        return null;
     }
 
     /**

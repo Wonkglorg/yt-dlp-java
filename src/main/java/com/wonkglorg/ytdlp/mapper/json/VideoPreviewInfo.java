@@ -3,155 +3,25 @@ package com.wonkglorg.ytdlp.mapper.json;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
 /**
  * Shorter version of {@link VideoInfo} containing information retrieved from a flattened youtube playlist (Does not contain as many values but is alot faster to obtain)
  */
+@SuppressWarnings("unused")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class VideoPreviewInfo {
-
-    @JsonProperty("_type")
-    private String type;
-
+public class VideoPreviewInfo extends BaseVideoInfo {
     @JsonProperty("ie_key")
-    private String ieKey;
-
-    @JsonProperty("id")
-    private String id;
-
+    protected String ieKey;
     @JsonProperty("url")
-    private String url;
-
-    @JsonProperty("title")
-    private String title;
-
-    @JsonProperty("description")
-    private String description;
-
-    @JsonProperty("duration")
-    private Integer duration;
-
-    @JsonProperty("channel_id")
-    private String channelId;
-
-    @JsonProperty("channel")
-    private String channel;
-
-    @JsonProperty("channel_url")
-    private String channelUrl;
-
-    @JsonProperty("uploader")
-    private String uploader;
-
-    @JsonProperty("uploader_id")
-    private String uploaderId;
-
-    @JsonProperty("uploader_url")
-    private String uploaderUrl;
-
-    @JsonProperty("thumbnails")
-    private List<Thumbnail> thumbnails;
-
-    @JsonProperty("timestamp")
-    private Long timestamp;
-
-    @JsonProperty("release_timestamp")
-    private Long releaseTimestamp;
-
-    @JsonProperty("availability")
-    private String availability;
-
-    @JsonProperty("view_count")
-    private Integer viewCount;
-
-    @JsonProperty("live_status")
-    private String liveStatus;
-
-    @JsonProperty("channel_is_verified")
-    private Boolean channelIsVerified;
-
+    protected String url;
     @JsonProperty("__x_forwarded_for_ip")
-    private String xForwardedForIp;
-
-    public String getType() {
-        return type;
-    }
+    protected String xForwardedForIp;
 
     public String getIeKey() {
         return ieKey;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public String getUrl() {
         return url;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public String getChannel() {
-        return channel;
-    }
-
-    public String getChannelUrl() {
-        return channelUrl;
-    }
-
-    public String getUploader() {
-        return uploader;
-    }
-
-    public String getUploaderId() {
-        return uploaderId;
-    }
-
-    public String getUploaderUrl() {
-        return uploaderUrl;
-    }
-
-    public List<Thumbnail> getThumbnails() {
-        return thumbnails;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    public Long getReleaseTimestamp() {
-        return releaseTimestamp;
-    }
-
-    public String getAvailability() {
-        return availability;
-    }
-
-    public Integer getViewCount() {
-        return viewCount;
-    }
-
-    public String getLiveStatus() {
-        return liveStatus;
-    }
-
-    public Boolean getChannelIsVerified() {
-        return channelIsVerified;
     }
 
     public String getxForwardedForIp() {

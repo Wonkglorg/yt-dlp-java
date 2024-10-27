@@ -1,5 +1,9 @@
 package com.wonkglorg.ytdlp;
 
+import com.wonkglorg.ytdlp.callback.DownloadEndCallback;
+import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
+import com.wonkglorg.ytdlp.callback.DownloadStartCallback;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -8,7 +12,7 @@ import java.util.Map.Entry;
 /**
  * YtDlp request
  */
-public class YtDlpRequest {
+public class YtDlpRequest implements Cloneable {
 
     /**
      * Executable working directory
@@ -24,6 +28,19 @@ public class YtDlpRequest {
      * List of executable options
      */
     private final Map<String, String> options = new HashMap<>();
+
+    /**
+     * Gets called when a new download is being started
+     */
+    private DownloadStartCallback downloadStartCallback;
+    /**
+     * Gets called when a download ended
+     */
+    private DownloadEndCallback downloadEndCallback;
+    /**
+     * Called every update to the progress obtained from yt-dlp output
+     */
+    private DownloadProgressCallback downloadProgressCallback = YtDlp.defaultCallBack();
 
     /**
      * Constructor
@@ -105,6 +122,30 @@ public class YtDlpRequest {
         return options;
     }
 
+    public DownloadStartCallback getDownloadStartCallback() {
+        return downloadStartCallback;
+    }
+
+    public void setDownloadStartCallback(DownloadStartCallback downloadStartCallback) {
+        this.downloadStartCallback = downloadStartCallback;
+    }
+
+    public DownloadEndCallback getDownloadEndCallback() {
+        return downloadEndCallback;
+    }
+
+    public void setDownloadEndCallback(DownloadEndCallback downloadEndCallback) {
+        this.downloadEndCallback = downloadEndCallback;
+    }
+
+    public DownloadProgressCallback getDownloadProgressCallback() {
+        return downloadProgressCallback;
+    }
+
+    public void setDownloadProgressCallback(DownloadProgressCallback downloadProgressCallback) {
+        this.downloadProgressCallback = downloadProgressCallback;
+    }
+
     /**
      * Transform options to a string that the executable will execute
      *
@@ -139,5 +180,22 @@ public class YtDlpRequest {
         }
 
         return builder.toString().trim();
+    }
+
+    @Override
+    public YtDlpRequest clone() {
+        try {
+            YtDlpRequest request = (YtDlpRequest) super.clone();
+            YtDlpRequest clone = new YtDlpRequest();
+            clone.directory = this.directory;
+            clone.url = this.url;
+            clone.options.putAll(this.options);
+            clone.downloadStartCallback = this.downloadStartCallback;
+            clone.downloadEndCallback = this.downloadEndCallback;
+            clone.downloadProgressCallback = this.downloadProgressCallback;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
