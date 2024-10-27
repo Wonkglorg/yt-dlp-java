@@ -3,10 +3,11 @@ package com.wonkglorg.ytdlp.mapper.json;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Iterator;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PlaylistInfo extends PlaylistData {
+public class PlaylistInfo extends BasePlaylistInfo implements Iterator<VideoInfo> {
 
     @JsonProperty("entries")
     private List<VideoInfo> entries;
@@ -52,5 +53,15 @@ public class PlaylistInfo extends PlaylistData {
                 ", filesToMove=" + filesToMove +
                 ", version=" + version +
                 '}';
+    }
+
+    @Override
+    public boolean hasNext() {
+        return entries.iterator().hasNext();
+    }
+
+    @Override
+    public VideoInfo next() {
+        return entries.iterator().next();
     }
 }

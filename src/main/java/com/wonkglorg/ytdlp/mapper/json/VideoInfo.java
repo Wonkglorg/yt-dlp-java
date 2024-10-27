@@ -8,27 +8,12 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class VideoInfo {
-    @JsonProperty("id")
-    private String id;
-    @JsonProperty("title")
-    private String title;
+public class VideoInfo extends BaseVideoInfo {
+
     @JsonProperty("formats")
     private List<VideoFormat> formats;
-    @JsonProperty("thumbnails")
-    private List<Thumbnail> thumbnails;
     @JsonProperty("thumbnail")
     private String thumbnail;
-    @JsonProperty("description")
-    private String description;
-    @JsonProperty("channel_id")
-    private String channelId;
-    @JsonProperty("channel_url")
-    private String channelUrl;
-    @JsonProperty("duration")
-    private Long duration;
-    @JsonProperty("view_count")
-    private Long viewCount;
     @JsonProperty("average_rating")
     private String averageRating;
     @JsonProperty("age_limit")
@@ -41,10 +26,6 @@ public class VideoInfo {
     private List<String> tags;
     @JsonProperty("playable_in_embed")
     private Boolean playableInEmbed;
-    @JsonProperty("live_status")
-    private String liveStatus;
-    @JsonProperty("release_timestamp")
-    private Long releaseTimestamp;
     @JsonProperty("_format_sort_fields")
     private List<String> formatSortFields;
     @JsonProperty("automatic_captions")
@@ -59,24 +40,10 @@ public class VideoInfo {
     private List<HeatmapData> heatmap;
     @JsonProperty("like_count")
     private Long likeCount;
-    @JsonProperty("channel")
-    private String channel;
     @JsonProperty("channel_follower_count")
     private Long channelFollowerCount;
-    @JsonProperty("channel_is_verified")
-    private boolean channelIsVerified;
-    @JsonProperty("uploader")
-    private String uploader;
-    @JsonProperty("uploader_id")
-    private String uploaderId;
-    @JsonProperty("uploader_url")
-    private String uploaderUrl;
     @JsonProperty("upload_date")
     private String uploadDate;
-    @JsonProperty("timestamp")
-    private Long timestamp;
-    @JsonProperty("availability")
-    private String availability;
     @JsonProperty("original_url")
     private String originalUrl;
     @JsonProperty("webpage_url_basename")
@@ -91,16 +58,12 @@ public class VideoInfo {
     private String playlist;
     @JsonProperty("playlist_uploader")
     private String playlistUploader;
-
     @JsonProperty("playlist_uploader_id")
     private String playlistUploaderId;
-
     @JsonProperty("playlist_channel")
     private String playlistChannel;
-
     @JsonProperty("playlist_channel_id")
     private String playlistChannelId;
-
     @JsonProperty("playlist_autonumber")
     private int playlistAutonumber;
     @JsonProperty("playlist_index")
@@ -173,50 +136,15 @@ public class VideoInfo {
     private String filename;
     @JsonProperty("filename")
     private String fileName;
-    @JsonProperty("_type")
-    private String type;
     @JsonProperty("_version")
     private DownloaderVersion version;
-
-
-    public String getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
 
     public List<VideoFormat> getFormats() {
         return formats;
     }
 
-    public List<Thumbnail> getThumbnails() {
-        return thumbnails;
-    }
-
     public String getThumbnail() {
         return thumbnail;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public String getChannelUrl() {
-        return channelUrl;
-    }
-
-    public Long getDuration() {
-        return duration;
-    }
-
-    public long getViewCount() {
-        return viewCount;
     }
 
     public String getAverageRating() {
@@ -243,13 +171,6 @@ public class VideoInfo {
         return playableInEmbed;
     }
 
-    public String getLiveStatus() {
-        return liveStatus;
-    }
-
-    public long getReleaseTimestamp() {
-        return releaseTimestamp;
-    }
 
     public List<String> getFormatSortFields() {
         return formatSortFields;
@@ -279,40 +200,12 @@ public class VideoInfo {
         return likeCount;
     }
 
-    public String getChannel() {
-        return channel;
-    }
-
     public long getChannelFollowerCount() {
         return channelFollowerCount;
     }
 
-    public boolean isChannelIsVerified() {
-        return channelIsVerified;
-    }
-
-    public String getUploader() {
-        return uploader;
-    }
-
-    public String getUploaderId() {
-        return uploaderId;
-    }
-
-    public String getUploaderUrl() {
-        return uploaderUrl;
-    }
-
     public String getUploadDate() {
         return uploadDate;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public String getAvailability() {
-        return availability;
     }
 
     public String getOriginalUrl() {
@@ -479,9 +372,6 @@ public class VideoInfo {
         return fileName;
     }
 
-    public String getType() {
-        return type;
-    }
 
     public DownloaderVersion getVersion() {
         return version;
