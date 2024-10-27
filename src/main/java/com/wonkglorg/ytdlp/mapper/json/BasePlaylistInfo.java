@@ -10,7 +10,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class PlaylistData {
+public abstract class BasePlaylistInfo{
 
     /**
      * Playlist ID
