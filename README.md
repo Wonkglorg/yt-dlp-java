@@ -72,15 +72,14 @@ YtDlpResponse response = YtDlp.execute(request);
 String stdOut = response.getOut(); // Executable output
 ```
 
-You may also specify a callback to get notified about the progress of the download:
+You may also specify callbacks to get notified about start /the progress and end of the download:
 
 ```java
-YtDlpResponse response = YtDlp.execute(request, new DownloadProgressCallback() {
-    @Override
-        public void onProgressUpdate(float progress, long etaInSeconds) {
-            System.out.println(String.valueOf(progress) + "%");
-        }
-});
+YtDlpRequest request = new YtDlpRequest(VIDEO_URL, DIRECTORY);
+request.setDownloadProgressCallback((progress) -> 
+    System.out.println("Downloading %s at %s out of %s".formatted(progress.fileName(), progress.downloadSpeed(), progress.progressPercent())));
+        
+ YtDlp.execute(request);
 ```
 
 ## Java Objects
@@ -98,6 +97,16 @@ videoInfo.ifPresent(info -> {
    Map<String, List<Caption>> videoCaptions = info.getAutomaticCaptions();
   }
 );
+```
+
+## Download Builder
+Built in way to easily download videos and audio
+
+```java
+VideoFileInfo<VideoInfo> videoFileInfo = new DownloadBuilder(VIDEO_URL, DIRECTORY)
+    .setFormatOption(FormatOption.MP3)    //the format to download the file in
+    .setOutputName("%(title)s.%(ext)s")   //the name the file should have
+    .download();                          //starts the download and returns information about the file and its data
 ```
 
 # Links
