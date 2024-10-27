@@ -1,6 +1,7 @@
 package com.wonkglorg.ytdlp;
 
 import com.wonkglorg.ytdlp.callback.DownloadEndCallback;
+import com.wonkglorg.ytdlp.callback.DownloadLineCallback;
 import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
 import com.wonkglorg.ytdlp.callback.DownloadStartCallback;
 
@@ -30,18 +31,10 @@ public class YtDlpRequest implements Cloneable {
      */
     private final Map<String, String> options = new HashMap<>();
 
-    /**
-     * Gets called when a new download is being started
-     */
     private DownloadStartCallback downloadStartCallback;
-    /**
-     * Gets called when a download ended
-     */
     private DownloadEndCallback downloadEndCallback;
-    /**
-     * Called every update to the progress obtained from yt-dlp output
-     */
     private DownloadProgressCallback downloadProgressCallback = YtDlp.defaultCallBack();
+    private DownloadLineCallback downloadLineCallback;
 
     /**
      * Constructor
@@ -152,7 +145,7 @@ public class YtDlpRequest implements Cloneable {
 
 
     /**
-     * @return {@link #downloadStartCallback}
+     * @return {@link DownloadStartCallback}
      */
     public DownloadStartCallback getDownloadStartCallback() {
         return downloadStartCallback;
@@ -161,14 +154,14 @@ public class YtDlpRequest implements Cloneable {
     /**
      * Set the download start callback
      *
-     * @param downloadStartCallback the callback
+     * @param downloadStartCallback {@link DownloadStartCallback}
      */
     public void setDownloadStartCallback(DownloadStartCallback downloadStartCallback) {
         this.downloadStartCallback = downloadStartCallback;
     }
 
     /**
-     * @return {@link #downloadEndCallback}
+     * @return {@link DownloadEndCallback}
      */
     public DownloadEndCallback getDownloadEndCallback() {
         return downloadEndCallback;
@@ -177,7 +170,7 @@ public class YtDlpRequest implements Cloneable {
     /**
      * Set the download end callback
      *
-     * @param downloadEndCallback the callback
+     * @param downloadEndCallback {@link DownloadEndCallback}
      */
     public void setDownloadEndCallback(DownloadEndCallback downloadEndCallback) {
         this.downloadEndCallback = downloadEndCallback;
@@ -193,10 +186,27 @@ public class YtDlpRequest implements Cloneable {
     /**
      * Set the download progress callback
      *
-     * @param downloadProgressCallback the callback
+     * @param downloadProgressCallback {@link DownloadProgressCallback}
      */
     public void setDownloadProgressCallback(DownloadProgressCallback downloadProgressCallback) {
         this.downloadProgressCallback = downloadProgressCallback;
+    }
+
+    /**
+     * @return {@link com.wonkglorg.ytdlp.callback.DownloadLineCallback}
+     */
+
+    public DownloadLineCallback getDownloadLineCallback() {
+        return downloadLineCallback;
+    }
+
+    /**
+     * Set the download line callback
+     *
+     * @param downloadLineCallback {@link com.wonkglorg.ytdlp.callback.DownloadLineCallback}
+     */
+    public void setDownloadLineCallback(DownloadLineCallback downloadLineCallback) {
+        this.downloadLineCallback = downloadLineCallback;
     }
 
     /**

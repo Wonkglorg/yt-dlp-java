@@ -1,10 +1,7 @@
 package com.wonkglorg.ytdlp.utils;
 
 import com.wonkglorg.ytdlp.YtDlpRequest;
-import com.wonkglorg.ytdlp.callback.DownloadEndCallback;
-import com.wonkglorg.ytdlp.callback.DownloadProgressCallback;
-import com.wonkglorg.ytdlp.callback.DownloadStartCallback;
-import com.wonkglorg.ytdlp.callback.ProgressCallBackData;
+import com.wonkglorg.ytdlp.callback.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +26,7 @@ public class StreamProcessExtractor extends Thread {
     private final DownloadProgressCallback progressCallback;
     private final DownloadStartCallback startCallback;
     private final DownloadEndCallback endCallback;
+    private final DownloadLineCallback lineCallback;
     private String destinationFile = null;
     private String url = null;
     private boolean hasReadHeader = false;
@@ -48,6 +46,7 @@ public class StreamProcessExtractor extends Thread {
         this.progressCallback = request.getDownloadProgressCallback();
         this.startCallback = request.getDownloadStartCallback();
         this.endCallback = request.getDownloadEndCallback();
+        this.lineCallback = request.getDownloadLineCallback();
         this.start();
     }
 
@@ -75,6 +74,10 @@ public class StreamProcessExtractor extends Thread {
     }
 
     private void processOutputLine(String line) {
+
+        if (lineCallback != null) {
+            lineCallback.onLineOutput(line);
+        }
         Matcher downloadMatcher = downloadProgressPattern.matcher(line);
         if (downloadMatcher.matches()) {
             progressCallback.onProgressUpdate(constructCallBackData(downloadMatcher));
