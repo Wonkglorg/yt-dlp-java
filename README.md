@@ -100,7 +100,7 @@ videoInfo.ifPresent(info -> {
 ```
 
 ## Download Builder
-Built in way to easily download videos and audio
+Built in way to easily download videos and audio, also supports callbacks
 
 ```java
 VideoFileInfo<VideoInfo> videoFileInfo = new DownloadBuilder(VIDEO_URL, DIRECTORY)
