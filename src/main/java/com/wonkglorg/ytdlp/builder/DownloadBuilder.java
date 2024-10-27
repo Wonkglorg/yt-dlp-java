@@ -28,16 +28,50 @@ import static com.wonkglorg.ytdlp.YtDlp.*;
 
 public class DownloadBuilder {
     private static final Logger log = Logger.getLogger(DownloadBuilder.class.getName());
+    /**
+     * The Pattern to identify the already downloaded message
+     */
     private static final Pattern hasBeenDownloadedPattern = Pattern.compile("\\[download] (?<filename>.+) has already been downloaded");
+    /**
+     * The Pattern to identify the output filename
+     */
     private static final Pattern outputFileNamePattern = Pattern.compile("\\[Merger] Merging formats into \"(?<filename>.+)\"");
+    /**
+     * The Pattern to identify the output filename for audio only downloads
+     */
     private static final Pattern outputFileNameAudioPattern = Pattern.compile("\\[ExtractAudio] Destination: (?<filename>.+)");
+    /**
+     * The url to download
+     */
     private String url;
+    /**
+     * The output directory
+     */
     private String outputDir;
+    /**
+     * The output name
+     */
     private String outputName = "%(title)s";
+    /**
+     * The format option
+     */
     private FormatOption formatOption = FormatOption.MP4;
+    /**
+     * The download start callback
+     */
     private DownloadStartCallback downloadStartCallback = null;
+    /**
+     * The download progress callback
+     */
     private DownloadProgressCallback downloadProgressCallback = YtDlp.defaultCallBack();
+    /**
+     * The download end callback
+     */
     private DownloadEndCallback downloadEndCallback = null;
+    /**
+     * True to download playlist videos into a subdirectory named after the playlist
+     */
+    private boolean subDirectoryPlaylist = false;
 
 
     public DownloadBuilder(String url, String outputDir) {
@@ -51,33 +85,70 @@ public class DownloadBuilder {
         return this;
     }
 
+    /**
+     * Sets the format option (default mp4)
+     *
+     * @return this
+     */
     public DownloadBuilder setFormatOption(FormatOption formatOption) {
         this.formatOption = formatOption;
         return this;
     }
 
+    /**
+     * Sets the url
+     *
+     * @return this
+     */
     public DownloadBuilder setUrl(String url) {
         this.url = url;
         return this;
     }
 
+    /**
+     * Sets the output directory
+     *
+     * @return this
+     */
     public DownloadBuilder setOutputDir(String outputDir) {
         this.outputDir = outputDir;
         return this;
     }
 
+    /**
+     * Sets the download start callback
+     *
+     * @return this
+     */
     public DownloadBuilder setDownloadStartCallback(DownloadStartCallback downloadStartCallback) {
         this.downloadStartCallback = downloadStartCallback;
         return this;
     }
 
+    /**
+     * Sets the download progress callback
+     *
+     * @return this
+     */
     public DownloadBuilder setDownloadProgressCallback(DownloadProgressCallback downloadProgressCallback) {
         this.downloadProgressCallback = downloadProgressCallback;
         return this;
     }
 
+    /**
+     * Sets the download end callback
+     */
     public DownloadBuilder setDownloadEndCallback(DownloadEndCallback downloadEndCallback) {
         this.downloadEndCallback = downloadEndCallback;
+        return this;
+    }
+
+    /**
+     * @param subDirectoryPlaylist true to download playlist videos into a subdirectory named after the playlist
+     * @return this
+     */
+    public DownloadBuilder setSubDirectoryPlaylist(boolean subDirectoryPlaylist) {
+        this.subDirectoryPlaylist = subDirectoryPlaylist;
         return this;
     }
 
@@ -102,7 +173,7 @@ public class DownloadBuilder {
      * @throws YtDlpException when the playlist is not found / the url is not a playlist for non playlist urls use {@link #download()} instead
      */
     public PlaylistInfoData<PlaylistInfo, VideoInfo> downloadPlaylist(boolean parallel) {
-        return downloadPlaylist(requestBuilder(), false, parallel, this::download);
+        return downloadPlaylist(requestBuilder(), subDirectoryPlaylist, parallel, this::download);
     }
 
     /**
@@ -115,7 +186,7 @@ public class DownloadBuilder {
      * @throws YtDlpException when the playlist is not found / the url is not a playlist for non playlist urls use {@link #download()} instead
      */
     public PlaylistInfoData<PlaylistPreviewInfo, VideoPreviewInfo> downloadPlaylistShortened(boolean parallel) throws YtDlpException {
-        return downloadPlaylistShortened(requestBuilder(), false, parallel, this::download);
+        return downloadPlaylistShortened(requestBuilder(), subDirectoryPlaylist, parallel, this::download);
     }
 
 
