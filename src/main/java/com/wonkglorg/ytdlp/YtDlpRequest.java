@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * YtDlp request
@@ -90,58 +91,110 @@ public class YtDlpRequest implements Cloneable {
         return this;
     }
 
+    /**
+     * @return the video url
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Set the video url (required)
+     *
+     * @param url the video url
+     */
     public YtDlpRequest setUrl(String url) {
         this.url = url;
         return this;
     }
 
+    /**
+     * Gets the options set for this request
+     */
     public Map<String, String> getOption() {
         return options;
     }
 
+    /**
+     * Add an option to the request
+     *
+     * @param key the option key
+     * @return YtDlpRequest
+     */
     public YtDlpRequest addOption(String key) {
         options.put(key, null);
         return this;
     }
 
+    /**
+     * Add an option to the request
+     *
+     * @param key   the option key
+     * @param value the option value
+     * @return YtDlpRequest
+     */
     public YtDlpRequest addOption(String key, String value) {
         options.put(key, value);
         return this;
     }
 
+    /**
+     * Add an option to the request
+     *
+     * @param key   the option key
+     * @param value the option value
+     * @return YtDlpRequest
+     */
     public YtDlpRequest addOption(String key, int value) {
         options.put(key, String.valueOf(value));
         return this;
     }
 
-    public Map<String, String> getOptions() {
-        return options;
-    }
 
+    /**
+     * @return {@link #downloadStartCallback}
+     */
     public DownloadStartCallback getDownloadStartCallback() {
         return downloadStartCallback;
     }
 
+    /**
+     * Set the download start callback
+     *
+     * @param downloadStartCallback the callback
+     */
     public void setDownloadStartCallback(DownloadStartCallback downloadStartCallback) {
         this.downloadStartCallback = downloadStartCallback;
     }
 
+    /**
+     * @return {@link #downloadEndCallback}
+     */
     public DownloadEndCallback getDownloadEndCallback() {
         return downloadEndCallback;
     }
 
+    /**
+     * Set the download end callback
+     *
+     * @param downloadEndCallback the callback
+     */
     public void setDownloadEndCallback(DownloadEndCallback downloadEndCallback) {
         this.downloadEndCallback = downloadEndCallback;
     }
 
+    /**
+     * @return {@link #downloadProgressCallback}
+     */
     public DownloadProgressCallback getDownloadProgressCallback() {
         return downloadProgressCallback;
     }
 
+    /**
+     * Set the download progress callback
+     *
+     * @param downloadProgressCallback the callback
+     */
     public void setDownloadProgressCallback(DownloadProgressCallback downloadProgressCallback) {
         this.downloadProgressCallback = downloadProgressCallback;
     }
@@ -197,5 +250,29 @@ public class YtDlpRequest implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "YtDlpRequest{" +
+                "directory='" + directory + '\'' +
+                ", url='" + url + '\'' +
+                ", options=" + options +
+                ", downloadStartCallback=" + downloadStartCallback +
+                ", downloadEndCallback=" + downloadEndCallback +
+                ", downloadProgressCallback=" + downloadProgressCallback +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof YtDlpRequest request)) return false;
+        return Objects.equals(directory, request.directory) && Objects.equals(url, request.url) && Objects.equals(options, request.options) && Objects.equals(downloadStartCallback, request.downloadStartCallback) && Objects.equals(downloadEndCallback, request.downloadEndCallback) && Objects.equals(downloadProgressCallback, request.downloadProgressCallback);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(directory, url, options, downloadStartCallback, downloadEndCallback, downloadProgressCallback);
     }
 }

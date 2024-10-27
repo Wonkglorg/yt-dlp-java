@@ -1,6 +1,7 @@
 package com.wonkglorg.ytdlp;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * YtDlp response
@@ -58,5 +59,30 @@ public class YtDlpResponse {
 
     public int getElapsedTime() {
         return elapsedTime;
+    }
+
+    @Override
+    public String toString() {
+        return "YtDlpResponse{" +
+                "options=" + options +
+                ", command='" + command + '\'' +
+                ", exitCode=" + exitCode +
+                ", out='" + out + '\'' +
+                ", err='" + err + '\'' +
+                ", directory='" + directory + '\'' +
+                ", elapsedTime=" + elapsedTime +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof YtDlpResponse that)) return false;
+        return exitCode == that.exitCode && elapsedTime == that.elapsedTime && Objects.equals(options, that.options) && Objects.equals(command, that.command) && Objects.equals(out, that.out) && Objects.equals(err, that.err) && Objects.equals(directory, that.directory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(options, command, exitCode, out, err, directory, elapsedTime);
     }
 }
