@@ -198,7 +198,7 @@ public class DownloadBuilder {
         for (String param : formatOption.getParams()) {
             request.addOption(param);
         }
-        request.addOption("--output", outputDir + "/" + outputName + "." + formatOption.getExtension());
+        request.addOption("--output", outputName + "." + formatOption.getExtension());
 
         return request;
     }
@@ -209,22 +209,23 @@ public class DownloadBuilder {
 
 
         String path = request.getDirectory();
-        if (subDirectoryPlaylist) path = path + "/" + playlistInfo.getTitle();
+        if (subDirectoryPlaylist) path = path + "\\" + playlistInfo.getTitle();
         Path.of(path).toFile().mkdirs();
 
         System.out.println("Downloading " + playlistInfo.getEntries().size() + " videos");
         if (!parallel) {
             List<VideoFileInfo<VideoInfo>> results = new ArrayList<>();
             for (VideoInfo videoInfo : videoInfos) {
-                results.add(downloader.apply(videoInfo, request.clone().setUrl(videoInfo.getOriginalUrl())));
+                results.add(downloader.apply(videoInfo, request.clone().setDirectory(path).setUrl(videoInfo.getOriginalUrl())));
             }
             return new PlaylistInfoData<>(playlistInfo, results);
         }
 
         List<Callable<VideoFileInfo<VideoInfo>>> tasks = new ArrayList<>();
 
+        String finalPath = path;
         for (VideoInfo videoInfo : videoInfos) {
-            tasks.add(() -> downloader.apply(videoInfo, request.clone().setUrl(videoInfo.getOriginalUrl())));
+            tasks.add(() -> downloader.apply(videoInfo, request.clone().setDirectory(finalPath).setUrl(videoInfo.getOriginalUrl())));
         }
 
 
@@ -236,21 +237,22 @@ public class DownloadBuilder {
         List<VideoPreviewInfo> videoInfos = playlistInfo.getEntries();
         if (videoInfos == null || videoInfos.isEmpty()) throw new YtDlpException("Not a Playlist!");
         String path = request.getDirectory();
-        if (subDirectoryPlaylist) path = path + "/" + playlistInfo.getTitle();
+        if (subDirectoryPlaylist) path = path + "\\" + playlistInfo.getTitle();
         Path.of(path).toFile().mkdirs();
 
         if (!parallel) {
             List<VideoFileInfo<VideoPreviewInfo>> results = new ArrayList<>();
             for (VideoPreviewInfo videoInfo : videoInfos) {
-                results.add(downloader.apply(videoInfo, request.clone().setUrl(videoInfo.getUrl())));
+                results.add(downloader.apply(videoInfo, request.clone().setDirectory(path).setUrl(videoInfo.getUrl())));
             }
             return new PlaylistInfoData<>(playlistInfo, results);
         }
 
         List<Callable<VideoFileInfo<VideoPreviewInfo>>> tasks = new ArrayList<>();
 
+        String finalPath = path;
         for (VideoPreviewInfo videoInfo : videoInfos) {
-            tasks.add(() -> downloader.apply(videoInfo, request.clone().setUrl(videoInfo.getUrl())));
+            tasks.add(() -> downloader.apply(videoInfo, request.clone().setDirectory(finalPath).setUrl(videoInfo.getUrl())));
         }
 
         System.out.println("Downloading " + playlistInfo.getEntries().size() + " videos");

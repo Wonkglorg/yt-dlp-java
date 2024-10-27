@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@SuppressWarnings("unused")
 public class DownloadBuilderTest {
 
     private static final String DIRECTORY = Path.of(System.getProperty("java.io.tmpdir"), "ytdlp-java-test").toString();
@@ -61,6 +62,21 @@ public class DownloadBuilderTest {
                 }
             });
         }
+    }
+
+    @Test
+    public void downloadPlaylistSubFolder() {
+        DownloadBuilder builder = new DownloadBuilder(PLAYLIST_SPECIFIC_VIDEO_URL, DIRECTORY);
+        var output = builder.setFormatOption(FormatOption.MP3).setSubDirectoryPlaylist(true).downloadPlaylistShortened(false);
+        output.videoFileInfo().forEach(videoInfo -> {
+            Assert.assertTrue(videoInfo.file().exists());
+            try {
+                Files.delete(videoInfo.file().toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
 
