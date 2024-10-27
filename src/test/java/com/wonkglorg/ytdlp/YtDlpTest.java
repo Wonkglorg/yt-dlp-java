@@ -11,9 +11,7 @@ public class YtDlpTest {
 
     private static final String DIRECTORY = System.getProperty("java.io.tmpdir");
     private static final String VIDEO_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    private static final String NONE_EXISTENT_VIDEO_URL =
-            "https://www.youtube.com/watch?v=dQw4w9WgXcZ";
-
+    private static final String NONE_EXISTENT_VIDEO_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcZ";
     private static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=OLAK5uy_nh1X4KzCgR37rgmHGTDx8u_R95S0vX4jA";
     private static final String PLAYLIST_SPECIFIC_VIDEO_URL = "https://www.youtube.com/watch?v=3NpjfRKOblg&list=OLAK5uy_nh1X4KzCgR37rgmHGTDx8u_R95S0vX4jA&index=1";
 
