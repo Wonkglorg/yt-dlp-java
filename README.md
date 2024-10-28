@@ -105,7 +105,7 @@ Built in way to easily download videos and audio, also supports callbacks
 ```java
 VideoFileInfo<VideoInfo> videoFileInfo = new DownloadBuilder(VIDEO_URL, DIRECTORY)
     .setFormatOption(FormatOption.MP3)    //the format to download the file in
-    .setOutputName("%(title)s.%(ext)s")   //the name the file should have
+    .setOutputName("%(title)s")   //the name the file should have
     .download();                          //starts the download and returns information about the file and its data
 ```
 
