@@ -8,7 +8,6 @@ import com.wonkglorg.ytdlp.mapper.Format;
 import com.wonkglorg.ytdlp.mapper.json.PlaylistInfo;
 import com.wonkglorg.ytdlp.mapper.json.PlaylistPreviewInfo;
 import com.wonkglorg.ytdlp.mapper.json.VideoInfo;
-import com.wonkglorg.ytdlp.utils.ConsoleColor;
 import com.wonkglorg.ytdlp.utils.StreamGobbler;
 import com.wonkglorg.ytdlp.utils.StreamProcessExtractor;
 
@@ -29,7 +28,6 @@ import static com.wonkglorg.ytdlp.utils.ConsoleColor.*;
  */
 public class YtDlp {
     private static final Logger log = Logger.getLogger(YtDlp.class.getName());
-    private static DownloadProgressCallback globalCallBack = defaultCallBack();
 
 
     private YtDlp() {
@@ -396,16 +394,4 @@ public class YtDlp {
             System.out.print("\r" + text);
         };
     }
-
-    /**
-     * Sets the global callback function for all predefined download methods
-     *
-     * @param callback
-     */
-    public void setGlobalCallBack(DownloadProgressCallback callback) {
-        globalCallBack = callback;
-    }
-
-
-
 }
