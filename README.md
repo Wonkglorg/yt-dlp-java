@@ -1,6 +1,6 @@
 # yt-dlp-java
 
-A simple java wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) executable
+A java wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) executable
 
 # Prerequisite
 
